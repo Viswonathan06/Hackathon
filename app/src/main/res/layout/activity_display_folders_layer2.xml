@@ -75,6 +75,22 @@
             android:id="@+id/rename">
 
         </Button>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/copy"
+            android:layout_weight="1"
+            android:text="Copy">
+        </Button>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/paste"
+            android:layout_weight="1"
+            android:text="Paste">
+        </Button>
+
 
 
     </LinearLayout>

@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
+import com.example.myapplication.RecyclerViews.UI.DisplayFoldersLayer2;
 
 import java.io.File;
 import java.lang.reflect.Array;
@@ -40,8 +41,10 @@ import java.io.*;
 import java.util.*;
 
 public class MainActivity extends AppCompatActivity {
+    public static String copyPath;
+    public static Boolean copied1=false;
     ArrayList<String> fileList;
-    Button delete,rename;
+    Button delete,paste,rename,copy;
     LinearLayout functiondrawer;
     File[] files;
     ArrayList<String> selectedPositions=new ArrayList<>();
@@ -49,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
     void initRecyclerView() {
         RecyclerView recyclerView = findViewById(R.id.filesfound);
-        com.example.myapplication.RecyclerViews.RecyclerViewAdapterHome adapter = new com.example.myapplication.RecyclerViews.RecyclerViewAdapterHome(MainActivity.this,fileList,functiondrawer,selectedPositions,rename);
+        com.example.myapplication.RecyclerViews.RecyclerViewAdapterHome adapter = new com.example.myapplication.RecyclerViews.RecyclerViewAdapterHome(MainActivity.this,fileList,functiondrawer,selectedPositions,rename,copy,paste);
         recyclerView.setAdapter(adapter);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(mLayoutManager);
@@ -62,6 +65,19 @@ public class MainActivity extends AppCompatActivity {
         delete=findViewById(R.id.delete);
         functiondrawer=findViewById(R.id.functions);
         rename=findViewById(R.id.rename);
+        paste=findViewById(R.id.paste);
+        paste.setVisibility(View.GONE);
+        copy=findViewById(R.id.copy);
+        /*if(copied){
+            paste.setVisibility(View.VISIBLE);
+            copy.setVisibility(View.GONE);
+        }
+
+         */
+        if(DisplayFoldersLayer2.copiedLevel2){
+            paste.setVisibility(View.VISIBLE);
+            copy.setVisibility(View.GONE);
+        }
 
 
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
@@ -101,6 +117,29 @@ public class MainActivity extends AppCompatActivity {
                 renameDialog.show();
             }
         });
+        copy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (selectedPositions.isEmpty()){
+                    Toast.makeText(MainActivity.this, "You have not selected a file!", Toast.LENGTH_SHORT).show();
+                }else {
+                    copyPath = Environment.getExternalStorageDirectory().getAbsolutePath() + selectedPositions.get(0);
+                    copied1=true;
+
+                }
+            }
+        });
+        paste.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this, copyPath, Toast.LENGTH_SHORT).show();
+              //  String dstPath=Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+
+            }
+        });
+
+
+
+
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -131,6 +170,26 @@ public class MainActivity extends AppCompatActivity {
                 deleteDialog.show();
             }
         });
+
+
+
+    }
+    private void copy(File src,File dst){
+        try {
+            InputStream in=new FileInputStream(src);
+            OutputStream out=new FileOutputStream(dst);
+            byte[] buf=new byte[1024];
+            int len;
+            while((len=in.read(buf))>0){
+                out.write(buf,0,len);
+            }
+            out.close();
+            in.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 

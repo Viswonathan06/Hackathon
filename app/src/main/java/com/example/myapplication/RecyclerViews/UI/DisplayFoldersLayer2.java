@@ -1,6 +1,7 @@
 package com.example.myapplication.RecyclerViews.UI;
 
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.example.myapplication.MainActivity;
@@ -8,6 +9,7 @@ import com.example.myapplication.RecyclerViews.RecyclerViewAdapterLevel2;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -15,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Environment;
+import android.os.FileUtils;
 import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
@@ -25,18 +28,27 @@ import android.widget.Toast;
 import com.example.myapplication.R;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Array;
+import java.nio.file.Files;
 import java.util.ArrayList;
 
 import maes.tech.intentanim.CustomIntent;
 
 public class DisplayFoldersLayer2 extends AppCompatActivity {
+    public static String copyPathLevel2;
+    public static Boolean copiedLevel2=false;
     String folderName;
     ArrayList<String> fileList = new ArrayList<>();
     ArrayList<String> selectedPositions = new ArrayList<>();
     LinearLayout functionList;
     FloatingActionButton fab ;
-    Button delete,rename;
+    Button delete,rename,copy,paste;
 
     void initRecyclerView() {
         RecyclerView recyclerView = findViewById(R.id.Level1recycle);
@@ -54,6 +66,13 @@ public class DisplayFoldersLayer2 extends AppCompatActivity {
         delete = findViewById(R.id.deletelevel1);
         setSupportActionBar(toolbar);
         rename=findViewById(R.id.rename);
+        paste=findViewById(R.id.paste);
+        paste.setVisibility(View.GONE);
+        copy=findViewById(R.id.copy);
+        if(MainActivity.copied1){
+            paste.setVisibility(View.VISIBLE);
+            copy.setVisibility(View.GONE);
+        }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
@@ -126,6 +145,33 @@ public class DisplayFoldersLayer2 extends AppCompatActivity {
 
             }
         });
+
+        copy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (selectedPositions.isEmpty()){
+                    Toast.makeText(DisplayFoldersLayer2.this, "You have not selected a file!", Toast.LENGTH_SHORT).show();
+                }else {
+                    copyPathLevel2 = Environment.getExternalStorageDirectory().getAbsolutePath() + selectedPositions.get(0);
+                    copiedLevel2=true;
+
+                }
+            }
+        });
+        paste.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(DisplayFoldersLayer2.this, MainActivity.copyPath, Toast.LENGTH_SHORT).show();
+                String src= new String(MainActivity.copyPath);
+                String dstPath= new String(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + folderName+src.substring(src.lastIndexOf('/')) );
+                Toast.makeText(DisplayFoldersLayer2.this, "destination= "+dstPath, Toast.LENGTH_SHORT).show();
+
+                copy(new File(MainActivity.copyPath), new File(dstPath));
+                RefreshViewOrNewView();
+            }
+
+        });
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -157,6 +203,31 @@ public class DisplayFoldersLayer2 extends AppCompatActivity {
                 deleteDialog.show();
             }
         });
+
+    }
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    private void copy(File src, File dst){
+        try {
+            InputStream in=new FileInputStream(src);
+            OutputStream out=new FileOutputStream(dst);
+           // FileUtils.copy(in,out);
+            Toast.makeText(this, "Copying", Toast.LENGTH_SHORT).show();
+            byte[] buf=new byte[1024];
+            int len;
+            while((len=in.read(buf))>0){
+                out.write(buf,0,len);
+            }
+            out.close();
+            in.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "NOT copying FNF", Toast.LENGTH_SHORT).show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "NOT copying", Toast.LENGTH_SHORT).show();
+
+        }
 
     }
 

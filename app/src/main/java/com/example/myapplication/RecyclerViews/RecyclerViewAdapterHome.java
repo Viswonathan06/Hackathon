@@ -34,7 +34,7 @@ import static androidx.constraintlayout.motion.widget.MotionScene.TAG;
 public class RecyclerViewAdapterHome extends RecyclerView.Adapter<RecyclerViewAdapterHome.ViewHolder>{
     ArrayList<String> fileList=new ArrayList<>();
     LinearLayout functions;
-    Button delete,rename;
+    Button delete,rename,copy,paste;
 
 
 
@@ -45,12 +45,14 @@ public class RecyclerViewAdapterHome extends RecyclerView.Adapter<RecyclerViewAd
 
     Context context;
     Boolean atleastOneIsSelected;
-    public RecyclerViewAdapterHome(Context context, ArrayList<String> foldernames,LinearLayout functionDrawer,ArrayList<String> selectedPositions,Button rename) {
+    public RecyclerViewAdapterHome(Context context, ArrayList<String> foldernames,LinearLayout functionDrawer,ArrayList<String> selectedPositions,Button rename,Button copy,Button paste) {
         this.foldernames = foldernames;
         this.context=context;
         this.functions=functionDrawer;
         this.selectedPositions=selectedPositions;
         this.rename=rename;
+        this.copy=copy;
+        this.paste=paste;
     }
 
     @NonNull
@@ -93,8 +95,7 @@ public class RecyclerViewAdapterHome extends RecyclerView.Adapter<RecyclerViewAd
                     }else {
                         Intent intent = new Intent(context, DisplayFoldersLayer2.class);
                         intent.putExtra("Name of folder", foldernames.get(position));
-                        functions.setAnimation(topAnim);
-                        functions.setVisibility(View.GONE);
+
                         context.startActivity(intent);
                         CustomIntent.customType(context, "fadein-to-fadeout");
                     }
@@ -128,6 +129,17 @@ public class RecyclerViewAdapterHome extends RecyclerView.Adapter<RecyclerViewAd
                     else{
                         rename.setVisibility(View.GONE);
                     }
+                    if(selectedPositions.size()>=1){
+                        copy.setVisibility(View.VISIBLE);
+                        paste.setVisibility(View.GONE);
+
+                    }
+                    else{
+                        copy.setVisibility(View.GONE);
+                        paste.setVisibility(View.VISIBLE);
+
+                    }
+
                 }
 //                holder.checkBox.setVisibility(View.VISIBLE);
 //                holder.checkBox.setChecked(true);
