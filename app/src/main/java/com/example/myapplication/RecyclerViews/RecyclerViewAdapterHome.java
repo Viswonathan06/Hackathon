@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -33,6 +34,8 @@ import static androidx.constraintlayout.motion.widget.MotionScene.TAG;
 public class RecyclerViewAdapterHome extends RecyclerView.Adapter<RecyclerViewAdapterHome.ViewHolder>{
     ArrayList<String> fileList=new ArrayList<>();
     LinearLayout functions;
+    Button delete,rename;
+
 
 
 //Set animation to elements
@@ -42,11 +45,12 @@ public class RecyclerViewAdapterHome extends RecyclerView.Adapter<RecyclerViewAd
 
     Context context;
     Boolean atleastOneIsSelected;
-    public RecyclerViewAdapterHome(Context context, ArrayList<String> foldernames,LinearLayout functionDrawer,ArrayList<String> selectedPositions) {
+    public RecyclerViewAdapterHome(Context context, ArrayList<String> foldernames,LinearLayout functionDrawer,ArrayList<String> selectedPositions,Button rename) {
         this.foldernames = foldernames;
         this.context=context;
         this.functions=functionDrawer;
         this.selectedPositions=selectedPositions;
+        this.rename=rename;
     }
 
     @NonNull
@@ -75,6 +79,12 @@ public class RecyclerViewAdapterHome extends RecyclerView.Adapter<RecyclerViewAd
                 if(selectedPositions.contains(foldernames.get(position))){
                     holder.parentlayout.setBackgroundResource(R.drawable.recycle_curved);
                     selectedPositions.remove(foldernames.get(position));
+                    if(selectedPositions.size()==1){
+                        rename.setVisibility(View.VISIBLE);
+                    }
+                    else{
+                        rename.setVisibility(View.GONE);
+                    }
                 }
                 else{
                     if(files==null||files.length==0){
@@ -112,6 +122,12 @@ public class RecyclerViewAdapterHome extends RecyclerView.Adapter<RecyclerViewAd
                     Toast.makeText(context, foldernames.get(position) + " Long clicked", Toast.LENGTH_SHORT).show();
                     selectedPositions.add(foldernames.get(position));
                     holder.parentlayout.setBackgroundResource(R.drawable.curved_layout);
+                    if(selectedPositions.size()==1){
+                        rename.setVisibility(View.VISIBLE);
+                    }
+                    else{
+                        rename.setVisibility(View.GONE);
+                    }
                 }
 //                holder.checkBox.setVisibility(View.VISIBLE);
 //                holder.checkBox.setChecked(true);

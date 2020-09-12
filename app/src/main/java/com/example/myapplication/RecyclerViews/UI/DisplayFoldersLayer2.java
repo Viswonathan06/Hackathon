@@ -15,8 +15,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Environment;
+import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -33,11 +35,12 @@ public class DisplayFoldersLayer2 extends AppCompatActivity {
     ArrayList<String> fileList = new ArrayList<>();
     ArrayList<String> selectedPositions = new ArrayList<>();
     LinearLayout functionList;
-    Button delete;
+    FloatingActionButton fab ;
+    Button delete,rename;
 
     void initRecyclerView() {
         RecyclerView recyclerView = findViewById(R.id.Level1recycle);
-        RecyclerViewAdapterLevel2 adapter = new RecyclerViewAdapterLevel2(DisplayFoldersLayer2.this, fileList, functionList, selectedPositions);
+        RecyclerViewAdapterLevel2 adapter = new RecyclerViewAdapterLevel2(DisplayFoldersLayer2.this, fileList, functionList, selectedPositions,rename);
         recyclerView.setAdapter(adapter);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(mLayoutManager);
@@ -50,6 +53,10 @@ public class DisplayFoldersLayer2 extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         delete = findViewById(R.id.deletelevel1);
         setSupportActionBar(toolbar);
+        rename=findViewById(R.id.rename);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
         folderName = getIntent().getStringExtra("Name of folder");
         fileList = new ArrayList<String>();
         File root = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + folderName);
@@ -62,6 +69,63 @@ public class DisplayFoldersLayer2 extends AppCompatActivity {
             Toast.makeText(this, fileList.get(0), Toast.LENGTH_SHORT).show();
             initRecyclerView();
         }
+        rename.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final AlertDialog.Builder renameDialog=new AlertDialog.Builder(DisplayFoldersLayer2.this);
+                renameDialog.setTitle("Rename to");
+                final EditText input=new EditText((DisplayFoldersLayer2.this));
+                input.setText(selectedPositions.get(0));
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                renameDialog.setView(input);
+                renameDialog.setPositiveButton("Rename", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        File dir = new File(Environment.getExternalStorageDirectory() + "/" + folderName);
+                        if(dir.exists()){
+                            File from = new File(dir,selectedPositions.get(0));
+                            File to = new File(dir,String.valueOf(input.getText()));
+                            if(from.exists())
+                                from.renameTo(to);
+                            RefreshViewOrNewView();
+                        }
+                    }
+                });
+                renameDialog.show();
+            }
+        });
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(DisplayFoldersLayer2.this, "Adding new folder!", Toast.LENGTH_SHORT).show();
+                final AlertDialog.Builder newFolderDialog=new AlertDialog.Builder(DisplayFoldersLayer2.this);
+                newFolderDialog.setTitle("New Folder");
+                final EditText input=new EditText(DisplayFoldersLayer2.this);
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                newFolderDialog.setView(input);
+                newFolderDialog.setPositiveButton("Create", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        final File newFolder=new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + folderName+"/"+input.getText());
+                        if(!newFolder.exists()){
+                            boolean mkdir = newFolder.mkdir();
+                            RefreshViewOrNewView();
+                            Toast.makeText(DisplayFoldersLayer2.this, "Folder created: "+mkdir, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                newFolderDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                newFolderDialog.show();
+
+
+            }
+        });
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -79,16 +143,7 @@ public class DisplayFoldersLayer2 extends AppCompatActivity {
                             }
                         }
                         fileList = new ArrayList<String>();
-                        File root = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + folderName);
-                        File[] files = root.listFiles();
-                        fileList.clear();
-                        if (files != null) {
-                            for (File file : files) {
-                                fileList.add(file.getPath().substring(file.getPath().lastIndexOf('/') + 1));
-                            }
-                            Toast.makeText(DisplayFoldersLayer2.this, fileList.get(0), Toast.LENGTH_SHORT).show();
-                            initRecyclerView();
-                        }
+                        RefreshViewOrNewView();
                     }
 
 
@@ -103,6 +158,19 @@ public class DisplayFoldersLayer2 extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void RefreshViewOrNewView() {
+        File root = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + folderName);
+        final File[] files = root.listFiles();
+        fileList.clear();
+        if (files != null) {
+            for (File file : files) {
+                fileList.add(file.getPath().substring(file.getPath().lastIndexOf('/') + 1));
+            }
+            Toast.makeText(DisplayFoldersLayer2.this, fileList.get(0), Toast.LENGTH_SHORT).show();
+            initRecyclerView();
+        }
     }
 
     private void deleteFileorFolder(File fileorfolder) {
@@ -130,8 +198,7 @@ public class DisplayFoldersLayer2 extends AppCompatActivity {
     }
 
 
-//    FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener()
+
 //
 //    {
 //        @Override

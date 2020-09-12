@@ -32,12 +32,22 @@ android:layout_weight="1"
         android:background="@android:color/transparent"
         android:id="@+id/functions"
         android:orientation="horizontal">
+
+        <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/delete"
+        android:layout_weight="1"
+        android:text="Delete">
+
+        </Button>
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/delete"
+            android:id="@+id/rename"
             android:layout_weight="1"
-            android:text="Delete">
+            android:text="Rename"
+            android:visibility="gone">
 
         </Button>
 

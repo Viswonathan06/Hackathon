@@ -13,12 +13,14 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -39,7 +41,7 @@ import java.util.*;
 
 public class MainActivity extends AppCompatActivity {
     ArrayList<String> fileList;
-    Button delete;
+    Button delete,rename;
     LinearLayout functiondrawer;
     File[] files;
     ArrayList<String> selectedPositions=new ArrayList<>();
@@ -47,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
     void initRecyclerView() {
         RecyclerView recyclerView = findViewById(R.id.filesfound);
-        com.example.myapplication.RecyclerViews.RecyclerViewAdapterHome adapter = new com.example.myapplication.RecyclerViews.RecyclerViewAdapterHome(MainActivity.this,fileList,functiondrawer,selectedPositions);
+        com.example.myapplication.RecyclerViews.RecyclerViewAdapterHome adapter = new com.example.myapplication.RecyclerViews.RecyclerViewAdapterHome(MainActivity.this,fileList,functiondrawer,selectedPositions,rename);
         recyclerView.setAdapter(adapter);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(mLayoutManager);
@@ -59,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         delete=findViewById(R.id.delete);
         functiondrawer=findViewById(R.id.functions);
+        rename=findViewById(R.id.rename);
+
 
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
@@ -68,27 +72,35 @@ public class MainActivity extends AppCompatActivity {
 
             Toast.makeText(this,"All permissions given",3000).show();
             fileList=new ArrayList<String>();
-            File root=new File(Environment.getExternalStorageDirectory().getAbsolutePath());
-            files = root.listFiles();
-            fileList.clear();
-            if (files != null) {
-                for (File file : files) {
-                    fileList.add(file.getPath().substring(file.getPath().lastIndexOf('/')+1));
-                }
-                Toast.makeText(this, fileList.get(0), Toast.LENGTH_SHORT).show();
-                initRecyclerView();
-
-
-//                recyclerView=findViewById(R.id.r1);
-//                recyclerView.setHasFixedSize(true);
-//                recyclerView.setLayoutManager(layoutManager);
-//                mAdapter = new Adapter(getApplicationContext());
-//                mAdapter.add(fileList);
-//                recyclerView.setAdapter(mAdapter);
-            }
+            createNewViewOrRefresh();
 
 
         }
+        rename.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final AlertDialog.Builder renameDialog=new AlertDialog.Builder(MainActivity.this);
+                renameDialog.setTitle("Rename to");
+                final EditText input=new EditText((MainActivity.this));
+                input.setText(selectedPositions.get(0));
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                renameDialog.setView(input);
+                renameDialog.setPositiveButton("Rename", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        File dir = Environment.getExternalStorageDirectory();
+                        if(dir.exists()){
+                            File from = new File(dir,selectedPositions.get(0));
+                            File to = new File(dir,String.valueOf(input.getText()));
+                            if(from.exists())
+                                from.renameTo(to);
+                            createNewViewOrRefresh();
+                        }
+                    }
+                });
+                renameDialog.show();
+            }
+        });
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -105,16 +117,7 @@ public class MainActivity extends AppCompatActivity {
                                     deleteFileorFolder(files[i]);
                                 }
                             }
-                        File root=new File(Environment.getExternalStorageDirectory().getAbsolutePath());
-                        files = root.listFiles();
-                        fileList.clear();
-                        if (files != null) {
-                            for (File file : files) {
-                                fileList.add(file.getPath().substring(file.getPath().lastIndexOf('/')+1));
-                            }
-                            Toast.makeText(MainActivity.this, fileList.get(0), Toast.LENGTH_SHORT).show();
-                            initRecyclerView();
-                        }
+                        createNewViewOrRefresh();
 
 
                     }
@@ -130,6 +133,20 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
+    private void createNewViewOrRefresh() {
+        File root = new File(Environment.getExternalStorageDirectory().getAbsolutePath());
+        files = root.listFiles();
+        fileList.clear();
+        if (files != null) {
+            for (File file : files) {
+                fileList.add(file.getPath().substring(file.getPath().lastIndexOf('/') + 1));
+            }
+            Toast.makeText(this, fileList.get(0), Toast.LENGTH_SHORT).show();
+            initRecyclerView();
+        }
+    }
+
     private void deleteFileorFolder(File fileorfolder){
         if(fileorfolder.isDirectory()){
             if(fileorfolder.list().length==0){
