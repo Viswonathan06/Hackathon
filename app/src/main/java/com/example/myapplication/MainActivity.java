@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -34,6 +36,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
 import com.example.myapplication.RecyclerViews.UI.DisplayFoldersLayer2;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
 import java.lang.reflect.Array;
@@ -48,11 +52,13 @@ public class MainActivity extends AppCompatActivity {
     public static Boolean copied1=false;
     Boolean copiedLevel2=false;
     Boolean moveLevel2=false;
+    TextView storageinfo;
     String copyPathLevel2;
     ArrayList<String> fileList;
-    Button delete,paste,rename,copy,move;
+    ImageButton delete,paste,rename,copy,move;
     LinearLayout functiondrawer;
     File[] files;
+    Long free_space;
     ArrayList<String> selectedPositions=new ArrayList<>();
     private RecyclerView.LayoutManager layoutManager;
 
@@ -61,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.filesfound);
         com.example.myapplication.RecyclerViews.RecyclerViewAdapterHome adapter = new com.example.myapplication.RecyclerViews.RecyclerViewAdapterHome(MainActivity.this,fileList,functiondrawer,selectedPositions,rename,copy,paste);
         recyclerView.setAdapter(adapter);
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false);
         recyclerView.setLayoutManager(mLayoutManager);
     }
     @Override
@@ -76,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
             paste.setVisibility(View.VISIBLE);
             copy.setVisibility(View.GONE);
         }
-        Toast.makeText(this, "Resuming with copy value "+copiedLevel2+" move value "+moveLevel2, Toast.LENGTH_SHORT).show();
         createNewViewOrRefresh();
     }
     @Override
@@ -94,14 +99,50 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        delete=findViewById(R.id.delete);
-        functiondrawer=findViewById(R.id.functions);
-        rename=findViewById(R.id.rename);
-        paste=findViewById(R.id.paste);
+        setContentView(R.layout.activity_scrolling);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar1);
+        //setSupportActionBar(toolbar);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(MainActivity.this, "Adding new folder!", Toast.LENGTH_SHORT).show();
+                final AlertDialog.Builder newFolderDialog=new AlertDialog.Builder(MainActivity.this);
+                newFolderDialog.setTitle("New Folder");
+                final EditText input=new EditText(MainActivity.this);
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                newFolderDialog.setView(input);
+                newFolderDialog.setPositiveButton("Create", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        final File newFolder=new File(Environment.getExternalStorageDirectory().getAbsolutePath() +"/"+input.getText());
+                        if(!newFolder.exists()){
+                            boolean mkdir = newFolder.mkdir();
+                            createNewViewOrRefresh();
+                            Toast.makeText(MainActivity.this, "Folder created: "+mkdir, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                newFolderDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                newFolderDialog.show();
+
+
+            }
+        });
+        delete = findViewById(R.id.delete);
+        functiondrawer = findViewById(R.id.functions);
+        rename = findViewById(R.id.rename);
+        paste = findViewById(R.id.paste);
         paste.setVisibility(View.GONE);
-        copy=findViewById(R.id.copy);
-        move=findViewById(R.id.move);
+        copy = findViewById(R.id.copy);
+        move = findViewById(R.id.move);
+        storageinfo=findViewById(R.id.storage_info);
         /*if(copied){
             paste.setVisibility(View.VISIBLE);
             copy.setVisibility(View.GONE);
@@ -110,19 +151,14 @@ public class MainActivity extends AppCompatActivity {
          */
 
 
-
-
-
-
-
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
         }
 
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 
-            Toast.makeText(this,"All permissions given",3000).show();
-            fileList=new ArrayList<String>();
+            Toast.makeText(this, "All permissions given", 3000).show();
+            fileList = new ArrayList<String>();
             createNewViewOrRefresh();
 
 
@@ -130,9 +166,9 @@ public class MainActivity extends AppCompatActivity {
         rename.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final AlertDialog.Builder renameDialog=new AlertDialog.Builder(MainActivity.this);
+                final AlertDialog.Builder renameDialog = new AlertDialog.Builder(MainActivity.this);
                 renameDialog.setTitle("Rename to");
-                final EditText input=new EditText((MainActivity.this));
+                final EditText input = new EditText((MainActivity.this));
                 input.setText(selectedPositions.get(0));
                 input.setInputType(InputType.TYPE_CLASS_TEXT);
                 renameDialog.setView(input);
@@ -140,10 +176,10 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         File dir = Environment.getExternalStorageDirectory();
-                        if(dir.exists()){
-                            File from = new File(dir,selectedPositions.get(0));
-                            File to = new File(dir,String.valueOf(input.getText()));
-                            if(from.exists())
+                        if (dir.exists()) {
+                            File from = new File(dir, selectedPositions.get(0));
+                            File to = new File(dir, String.valueOf(input.getText()));
+                            if (from.exists())
                                 from.renameTo(to);
                             createNewViewOrRefresh();
                         }
@@ -156,11 +192,13 @@ public class MainActivity extends AppCompatActivity {
         copy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (selectedPositions.isEmpty()){
+                if (selectedPositions.isEmpty()) {
                     Toast.makeText(MainActivity.this, "You have not selected a file!", Toast.LENGTH_SHORT).show();
-                }else {
-                    copyPath = Environment.getExternalStorageDirectory().getAbsolutePath() +"/" +selectedPositions.get(0);
-                    copied1=true;
+                } else {
+                    copyPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + selectedPositions.get(0);
+                    Toast.makeText(MainActivity.this, "Copied "+selectedPositions.get(0), Toast.LENGTH_SHORT).show();
+
+                    copied1 = true;
 
 
                 }
@@ -169,12 +207,16 @@ public class MainActivity extends AppCompatActivity {
         move.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (selectedPositions.isEmpty()){
+                if (selectedPositions.isEmpty()) {
                     Toast.makeText(MainActivity.this, "You have not selected a file!", Toast.LENGTH_SHORT).show();
-                }else {
+                } else {
+                    Toast.makeText(MainActivity.this, "Moving "+selectedPositions.get(0), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Go to the directory where you want to move! "+selectedPositions.get(0), Toast.LENGTH_SHORT).show();
+
+
                     copyPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + selectedPositions.get(0);
                     copied1 = false;
-                    move1=true;
+                    move1 = true;
                     copy.setVisibility(View.GONE);
                 }
             }
@@ -182,12 +224,13 @@ public class MainActivity extends AppCompatActivity {
         paste.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(copiedLevel2||moveLevel2) {
+
+                if (copiedLevel2 || moveLevel2) {
                     Toast.makeText(MainActivity.this, copyPathLevel2, Toast.LENGTH_SHORT).show();
                     File src = new File(copyPathLevel2);
-                    File dest = new File(Environment.getExternalStorageDirectory().getAbsolutePath()  + copyPathLevel2.substring(copyPathLevel2.lastIndexOf('/')));
-                    Toast.makeText(MainActivity.this, "destination= " + Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + copyPathLevel2.substring(copyPathLevel2.lastIndexOf('/')+1), Toast.LENGTH_SHORT).show();
-                    copy(src,dest,moveLevel2);
+                    File dest = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + copyPathLevel2.substring(copyPathLevel2.lastIndexOf('/')));
+                    Toast.makeText(MainActivity.this, "destination= " + Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + copyPathLevel2.substring(copyPathLevel2.lastIndexOf('/') + 1), Toast.LENGTH_SHORT).show();
+                    copy(src, dest, moveLevel2);
                 }
 
                 createNewViewOrRefresh();
@@ -196,24 +239,22 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
-
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final AlertDialog.Builder deleteDialog= new AlertDialog.Builder((MainActivity.this));
+                final AlertDialog.Builder deleteDialog = new AlertDialog.Builder((MainActivity.this));
                 deleteDialog.setTitle("Delete");
                 deleteDialog.setMessage("Do you really want to delete?");
                 deleteDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                            Toast.makeText(MainActivity.this, String.valueOf(selectedPositions.get(0))+"  "+String.valueOf(fileList.size()), Toast.LENGTH_SHORT).show();
-                            for(int i=0;i<fileList.size();i++){
-                                if(selectedPositions.contains(fileList.get(i))){
-                                    Toast.makeText(MainActivity.this, "Deleting"+fileList.get(i), Toast.LENGTH_SHORT).show();
-                                    deleteFileorFolder(files[i]);
-                                }
+                        Toast.makeText(MainActivity.this, String.valueOf(selectedPositions.get(0)) + "  " + String.valueOf(fileList.size()), Toast.LENGTH_SHORT).show();
+                        for (int i = 0; i < fileList.size(); i++) {
+                            if (selectedPositions.contains(fileList.get(i))) {
+                                Toast.makeText(MainActivity.this, "Deleting" + fileList.get(i), Toast.LENGTH_SHORT).show();
+                                deleteFileorFolder(files[i]);
                             }
+                        }
                         createNewViewOrRefresh();
 
 
@@ -230,30 +271,32 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
     }
     private void copy(File sourceLocation, File targetLocation,Boolean move1){
         try {
 
-
+            // 1 = move the file, 2 = copy the file
+            int actionChoice = 2;
+            if(move1==true){
+                actionChoice=1;
+            }
 
             // moving the file to another directory
-            if(move1==true){
+            if (actionChoice == 1) {
 
-                if(sourceLocation.renameTo(targetLocation)){
-                    Toast.makeText(this, "File moves successfully", Toast.LENGTH_SHORT).show();
-                }else{
-                    Toast.makeText(this, "File moves failed", Toast.LENGTH_SHORT).show();
-                }
+                if (sourceLocation.renameTo(targetLocation)) {
+                    Toast.makeText(this, "File Move Success", Toast.LENGTH_SHORT).show();                }
+                else {
+                    Toast.makeText(this, "File Move failed", Toast.LENGTH_SHORT).show();                }
 
             }
 
             // we will copy the file
-            else{
+            else {
 
                 // make sure the target file exists
 
-                if(sourceLocation.exists()){
+                if (sourceLocation.exists()) {
 
                     InputStream in = new FileInputStream(sourceLocation);
                     OutputStream out = new FileOutputStream(targetLocation);
@@ -269,17 +312,16 @@ public class MainActivity extends AppCompatActivity {
                     in.close();
                     out.close();
 
-                    Toast.makeText(this, "Copy File Successful", Toast.LENGTH_SHORT).show();
-                }else {
-                    Toast.makeText(this, "Source File Missing", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Copy successfull", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "not copied", Toast.LENGTH_SHORT).show();
                 }
 
             }
 
-        } catch (NullPointerException | FileNotFoundException e) {
+        } catch (NullPointerException e) {
             e.printStackTrace();
-            Toast.makeText(this, "NFE", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -290,13 +332,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void createNewViewOrRefresh() {
         File root = new File(Environment.getExternalStorageDirectory().getAbsolutePath());
+        free_space=Environment.getExternalStorageDirectory().getFreeSpace()/1023/1024/1024;
         files = root.listFiles();
         fileList.clear();
         if (files != null) {
             for (File file : files) {
                 fileList.add(file.getPath().substring(file.getPath().lastIndexOf('/') + 1));
             }
-            Toast.makeText(this, fileList.get(0), Toast.LENGTH_SHORT).show();
+            storageinfo.setText(String.valueOf(free_space)+" GB in Internal Storage");
             initRecyclerView();
         }
     }
@@ -345,7 +388,6 @@ public class MainActivity extends AppCompatActivity {
                 for (File file : files) {
                     fileList.add(file.getPath());
                 }
-                Toast.makeText(this, fileList.get(0), Toast.LENGTH_SHORT).show();
 
 
             }

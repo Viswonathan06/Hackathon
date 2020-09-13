@@ -12,6 +12,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -21,6 +22,9 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.myapplication.R;
 import com.example.myapplication.RecyclerViews.UI.DisplayFoldersLayer2;
 
@@ -34,7 +38,7 @@ import static androidx.constraintlayout.motion.widget.MotionScene.TAG;
 public class RecyclerViewAdapterHome extends RecyclerView.Adapter<RecyclerViewAdapterHome.ViewHolder>{
     ArrayList<String> fileList=new ArrayList<>();
     LinearLayout functions;
-    Button delete,rename,copy,paste;
+    ImageButton delete,rename,copy,paste;
 
 
 
@@ -45,7 +49,7 @@ public class RecyclerViewAdapterHome extends RecyclerView.Adapter<RecyclerViewAd
 
     Context context;
     Boolean atleastOneIsSelected;
-    public RecyclerViewAdapterHome(Context context, ArrayList<String> foldernames,LinearLayout functionDrawer,ArrayList<String> selectedPositions,Button rename,Button copy,Button paste) {
+    public RecyclerViewAdapterHome(Context context, ArrayList<String> foldernames, LinearLayout functionDrawer, ArrayList<String> selectedPositions, ImageButton rename, ImageButton copy, ImageButton paste) {
         this.foldernames = foldernames;
         this.context=context;
         this.functions=functionDrawer;
@@ -65,10 +69,60 @@ public class RecyclerViewAdapterHome extends RecyclerView.Adapter<RecyclerViewAd
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         Log.d(TAG, "onBindViewHolder: ");
-        if(selectedPositions.contains(foldernames.get(position))){
-            Toast.makeText(context, "This is there!", Toast.LENGTH_SHORT).show();
+        if(selectedPositions.contains(foldernames.get(position))) {
+            holder.parentlayout.setBackgroundResource(R.drawable.curved_layout);
+
+        }else{
+            holder.parentlayout.setBackgroundResource(R.drawable.recycle_curved);
+
         }
         holder.title.setText(foldernames.get(position));
+        if (foldernames.get(position).contains(".mp4") || foldernames.get(position).contains(".amr") || foldernames.get(position).contains(".mp3")){
+            Glide.with(context)
+                    .load(R.drawable.music)
+                    .apply(new RequestOptions().override(300,300))
+                    .apply(new RequestOptions().circleCrop())
+                    .apply(new RequestOptions()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL))
+                    .into(holder.imageView);
+        }
+        else if (foldernames.get(position).contains(".pdf") ){
+            Glide.with(context)
+                    .load(R.drawable.pdf)
+                    .apply(new RequestOptions().override(300,300))
+                    .apply(new RequestOptions().circleCrop())
+                    .apply(new RequestOptions()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL))
+                    .into(holder.imageView);
+        }
+        else if (foldernames.get(position).charAt(0)=='.'){
+            Glide.with(context)
+                    .load(R.drawable.file_icon_1320191242906531645)
+                    .apply(new RequestOptions().override(300,300))
+                    .apply(new RequestOptions().circleCrop())
+                    .apply(new RequestOptions()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL))
+                    .into(holder.imageView);
+        }
+        else if (foldernames.get(position).contains(".jpg") || foldernames.get(position).contains(".jpeg") || foldernames.get(position).contains(".png")){
+            Glide.with(context)
+                    .load(R.drawable.image)
+                    .apply(new RequestOptions().override(300,300))
+                    .apply(new RequestOptions().circleCrop())
+                    .apply(new RequestOptions()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL))
+                    .into(holder.imageView);
+        }
+        else{
+            Glide.with(context)
+                    .load(R.drawable.folder)
+                    .apply(new RequestOptions().override(300,300))
+                    .apply(new RequestOptions().circleCrop())
+                    .apply(new RequestOptions()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL))
+                    .into(holder.imageView);
+        }
+
         final Animation topAnim = AnimationUtils.loadAnimation(context, R.anim.top_animation);
         final Animation bottomAnim = AnimationUtils.loadAnimation(context, R.anim.bottom_animation);
         holder.parentlayout.setOnClickListener(new View.OnClickListener() {
@@ -89,8 +143,8 @@ public class RecyclerViewAdapterHome extends RecyclerView.Adapter<RecyclerViewAd
                     }
                 }
                 else{
-                    if(files==null||files.length==0){
-                        Toast.makeText(context, "Item clicked is not a folder/empty", Toast.LENGTH_SHORT).show();
+                    if(files==null){
+                        Toast.makeText(context, "Item clicked is not a folder", Toast.LENGTH_SHORT).show();
 
                     }else {
                         Intent intent = new Intent(context, DisplayFoldersLayer2.class);

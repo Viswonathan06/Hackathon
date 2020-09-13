@@ -12,6 +12,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -21,6 +22,9 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.myapplication.R;
 import com.example.myapplication.RecyclerViews.UI.DisplayFoldersLayer2;
 
@@ -34,7 +38,7 @@ import static androidx.constraintlayout.motion.widget.MotionScene.TAG;
 public class RecyclerViewAdapterLevel2 extends RecyclerView.Adapter<RecyclerViewAdapterLevel2.ViewHolder>{
     ArrayList<String> fileList=new ArrayList<>();
     LinearLayout functions;
-    Button delete,rename;
+    ImageButton delete,rename;
 
 
 
@@ -45,7 +49,7 @@ public class RecyclerViewAdapterLevel2 extends RecyclerView.Adapter<RecyclerView
 
     Context context;
     Boolean atleastOneIsSelected;
-    public RecyclerViewAdapterLevel2(Context context, ArrayList<String> foldernames,LinearLayout functionDrawer,ArrayList<String> selectedPositions,Button rename) {
+    public RecyclerViewAdapterLevel2(Context context, ArrayList<String> foldernames, LinearLayout functionDrawer, ArrayList<String> selectedPositions, ImageButton rename) {
         this.foldernames = foldernames;
         this.context=context;
         this.functions=functionDrawer;
@@ -56,7 +60,7 @@ public class RecyclerViewAdapterLevel2 extends RecyclerView.Adapter<RecyclerView
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view= LayoutInflater.from(parent.getContext()).inflate(R.layout.home_recycler,parent,false);
+        View view= LayoutInflater.from(parent.getContext()).inflate(R.layout.level2recycler,parent,false);
         ViewHolder holder=new ViewHolder(view);
         return holder;    }
 
@@ -67,6 +71,52 @@ public class RecyclerViewAdapterLevel2 extends RecyclerView.Adapter<RecyclerView
             Toast.makeText(context, "This is there!", Toast.LENGTH_SHORT).show();
         }
         holder.title.setText(foldernames.get(position));
+        if (foldernames.get(position).contains(".mp4") || foldernames.get(position).contains(".amr") || foldernames.get(position).contains(".mp3")){
+            Glide.with(context)
+                    .load(R.drawable.music)
+                    .apply(new RequestOptions().override(300,300))
+                    .apply(new RequestOptions().circleCrop())
+                    .apply(new RequestOptions()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL))
+                    .into(holder.imageView);
+        }
+        else if (foldernames.get(position).contains(".pdf") ){
+            Glide.with(context)
+                    .load(R.drawable.pdf)
+                    .apply(new RequestOptions().override(300,300))
+                    .apply(new RequestOptions().circleCrop())
+                    .apply(new RequestOptions()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL))
+                    .into(holder.imageView);
+        }
+        else if (foldernames.get(position).charAt(0)=='.'){
+            Glide.with(context)
+                    .load(R.drawable.file_icon_1320191242906531645)
+                    .apply(new RequestOptions().override(300,300))
+                    .apply(new RequestOptions().circleCrop())
+                    .apply(new RequestOptions()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL))
+                    .into(holder.imageView);
+        }
+        else if (foldernames.get(position).contains(".jpg") || foldernames.get(position).contains(".jpeg") || foldernames.get(position).contains(".png")){
+            Glide.with(context)
+                    .load(R.drawable.image)
+                    .apply(new RequestOptions().override(300,300))
+                    .apply(new RequestOptions().circleCrop())
+                    .apply(new RequestOptions()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL))
+                    .into(holder.imageView);
+        }
+        else{
+            Glide.with(context)
+                    .load(R.drawable.folder)
+                    .apply(new RequestOptions().override(300,300))
+                    .apply(new RequestOptions().circleCrop())
+                    .apply(new RequestOptions()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL))
+                    .into(holder.imageView);
+        }
+
         final Animation topAnim = AnimationUtils.loadAnimation(context, R.anim.top_animation);
         final Animation bottomAnim = AnimationUtils.loadAnimation(context, R.anim.bottom_animation);
         holder.parentlayout.setOnClickListener(new View.OnClickListener() {

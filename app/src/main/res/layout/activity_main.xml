@@ -5,77 +5,138 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    android:orientation="vertical">
+    android:background="@drawable/wall"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <ImageView
+        android:id="@+id/text_home"
+        style="@style/TextAppearance.AppCompat.Display1"
+        android:layout_width="wrap_content"
+        android:layout_height="203dp"
+
+        android:layout_weight="1"
+        android:gravity="center_horizontal"
+        android:scaleType="fitXY"
+        android:src="@drawable/old_grunge_dark_textured_wooden_background_surface_old_brown_wood_texture_7182_333"
+        android:text="File Manager">
+
+    </ImageView>
 
     <TextView
-        android:id="@+id/text_home"
+        style="@style/TextAppearance.AppCompat.Display2"
+        android:layout_width="match_parent"
+        android:layout_height="57dp"
+        android:background="@drawable/old_grunge_dark_textured_wooden_background_surface_old_brown_wood_texture_7182_333"
+        android:fontFamily="@font/aclonica"
+        android:text="File Manager"
+        android:textColor="@android:color/white">
+
+    </TextView>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAlignment="center"
+        android:orientation="horizontal">
 
-        android:textSize="50sp"
-android:layout_weight="1"
-        android:gravity="center_horizontal" />
+        <TextView
+            style="@style/TextAppearance.AppCompat.Large"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="15dp"
+            android:layout_weight="1"
+            android:text="Available storage">
+
+        </TextView>
+
+        <TextView
+            android:id="@+id/storage_info"
+            style="@style/TextAppearance.AppCompat.Large"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="15dp"
+            android:layout_gravity="center"
+            android:background="@drawable/recycle_curved"
+            android:text="">
+
+        </TextView>
+
+    </LinearLayout>
+
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/filesfound"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:id="@+id/filesfound">
+        android:layout_weight="110">
 
     </androidx.recyclerview.widget.RecyclerView>
+
     <LinearLayout
+        android:id="@+id/functions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="0"
         android:background="@android:color/transparent"
-        android:id="@+id/functions"
         android:orientation="horizontal">
 
-        <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/delete"
-        android:layout_weight="1"
-        android:text="Delete">
-
-        </Button>
-        <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/rename"
-        android:layout_weight="1"
-        android:text="Rename"
-        android:visibility="gone">
-
-        </Button>
-
-        <Button
+        <ImageButton
+            android:id="@+id/delete"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/copy"
+            android:layout_height="match_parent"
             android:layout_weight="1"
+            android:background="@drawable/recycle_curved"
+            android:src="@android:drawable/ic_menu_delete"
+            android:text="Delete">
+
+        </ImageButton>
+
+        <ImageButton
+            android:id="@+id/rename"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/recycle_curved"
+            android:src="@android:drawable/ic_menu_edit"
+            android:text="Rename"
+            android:visibility="gone">
+
+        </ImageButton>
+
+        <ImageButton
+            android:id="@+id/copy"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="?attr/actionModeCopyDrawable"
+            android:background="@drawable/recycle_curved"
             android:text="Copy">
 
-        </Button>
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        </ImageButton>
+
+        <ImageButton
             android:id="@+id/paste"
-            android:layout_weight="1"
-            android:text="Paste">
-        </Button>
-        <Button
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/move"
+            android:layout_height="match_parent"
             android:layout_weight="1"
+            android:background="@drawable/recycle_curved"
+            android:src="?attr/actionModePasteDrawable"
+            android:text="Paste">
+
+        </ImageButton>
+
+        <ImageButton
+            android:id="@+id/move"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/recycle_curved"
+            android:src="@android:drawable/ic_menu_set_as"
             android:text="Move">
-        </Button>
 
-
-
+        </ImageButton>
 
 
     </LinearLayout>
