@@ -47,12 +47,14 @@ import maes.tech.intentanim.CustomIntent;
 public class DisplayFoldersLayer2 extends AppCompatActivity {
     public static String copyPathLevel2;
     public static Boolean copiedLevel2=false;
+    public static Boolean moveLevel2=false;
+
     String folderName;
     ArrayList<String> fileList = new ArrayList<>();
     ArrayList<String> selectedPositions = new ArrayList<>();
     LinearLayout functionList;
     FloatingActionButton fab ;
-    Button delete,rename,copy,paste;
+    Button delete,rename,copy,paste,move;
 
     void initRecyclerView() {
         RecyclerView recyclerView = findViewById(R.id.Level1recycle);
@@ -73,6 +75,7 @@ public class DisplayFoldersLayer2 extends AppCompatActivity {
         paste=findViewById(R.id.paste);
         paste.setVisibility(View.GONE);
         copy=findViewById(R.id.copy);
+        move=findViewById(R.id.move);
         if(MainActivity.copied1){
             paste.setVisibility(View.VISIBLE);
             copy.setVisibility(View.GONE);
@@ -164,6 +167,23 @@ public class DisplayFoldersLayer2 extends AppCompatActivity {
                     editor.putString("copyPathLevel2",copyPathLevel2);
                     editor.commit();
 
+                }
+            }
+        });
+        move.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (selectedPositions.isEmpty()){
+                    Toast.makeText(DisplayFoldersLayer2.this, "You have not selected a file!", Toast.LENGTH_SHORT).show();
+                }else {
+                    copy.setVisibility(View.GONE);
+                    copyPathLevel2 = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + folderName + "/" + selectedPositions.get(0);
+                    moveLevel2=true;
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(DisplayFoldersLayer2.this);
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putBoolean("moveLevel2", moveLevel2);
+                    editor.putString("copyPathLevel2", copyPathLevel2);
+                    editor.commit();
                 }
             }
         });

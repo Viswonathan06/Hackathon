@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     public static Boolean move1;
     public static Boolean copied1=false;
     Boolean copiedLevel2=false;
+    Boolean moveLevel2=false;
     String copyPathLevel2;
     ArrayList<String> fileList;
     Button delete,paste,rename,copy,move;
@@ -70,11 +71,12 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         copiedLevel2=preferences.getBoolean("copiedLevel2",false);
         copyPathLevel2=preferences.getString("copyPathLevel2","");
-        if(copiedLevel2){
+        moveLevel2=preferences.getBoolean("moveLevel2",false);
+        if(copiedLevel2||moveLevel2){
             paste.setVisibility(View.VISIBLE);
             copy.setVisibility(View.GONE);
         }
-        Toast.makeText(this, "Resuming with copy value "+copiedLevel2, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Resuming with copy value "+copiedLevel2+" move value "+moveLevel2, Toast.LENGTH_SHORT).show();
         createNewViewOrRefresh();
     }
     @Override
@@ -84,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putBoolean("copiedLevel2", false);
         editor.putString("copyPathLevel2","");
+        editor.putBoolean("moveLevel2",false);
         editor.commit();
 
     }
@@ -170,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "You have not selected a file!", Toast.LENGTH_SHORT).show();
                 }else {
                     copyPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + selectedPositions.get(0);
-                    copied1 = true;
+                    copied1 = false;
                     move1=true;
                     copy.setVisibility(View.GONE);
                 }
@@ -179,12 +182,12 @@ public class MainActivity extends AppCompatActivity {
         paste.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(copiedLevel2) {
+                if(copiedLevel2||moveLevel2) {
                     Toast.makeText(MainActivity.this, copyPathLevel2, Toast.LENGTH_SHORT).show();
                     File src = new File(copyPathLevel2);
                     File dest = new File(Environment.getExternalStorageDirectory().getAbsolutePath()  + copyPathLevel2.substring(copyPathLevel2.lastIndexOf('/')));
                     Toast.makeText(MainActivity.this, "destination= " + Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + copyPathLevel2.substring(copyPathLevel2.lastIndexOf('/')+1), Toast.LENGTH_SHORT).show();
-                    copy(src,dest);
+                    copy(src,dest,moveLevel2);
                 }
 
                 createNewViewOrRefresh();
@@ -229,19 +232,18 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-    private void copy(File sourceLocation, File targetLocation){
+    private void copy(File sourceLocation, File targetLocation,Boolean move1){
         try {
 
-            // 1 = move the file, 2 = copy the file
-            int actionChoice = 2;
+
 
             // moving the file to another directory
-            if(actionChoice==1){
+            if(move1==true){
 
                 if(sourceLocation.renameTo(targetLocation)){
-                    // Log.v(TAG, "Move file successful.");
+                    Toast.makeText(this, "File moves successfully", Toast.LENGTH_SHORT).show();
                 }else{
-                    //Log.v(TAG, "Move file failed.");
+                    Toast.makeText(this, "File moves failed", Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -282,6 +284,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+
+
 
     private void createNewViewOrRefresh() {
         File root = new File(Environment.getExternalStorageDirectory().getAbsolutePath());
