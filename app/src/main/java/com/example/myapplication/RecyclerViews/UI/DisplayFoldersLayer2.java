@@ -178,7 +178,7 @@ public class DisplayFoldersLayer2 extends AppCompatActivity {
                     File dest = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + folderName + "/" + MainActivity.copyPath.substring(MainActivity.copyPath.lastIndexOf('/')+1));
                     Toast.makeText(DisplayFoldersLayer2.this, "destination= " + Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + folderName + "/" + MainActivity.copyPath.substring(MainActivity.copyPath.lastIndexOf('/') + 1), Toast.LENGTH_SHORT).show();
 
-                    copy(src, dest);
+                    copy(src, dest,MainActivity.move1);
                     MainActivity.copied1=false;
                     MainActivity.copyPath="";
                 }
@@ -219,19 +219,18 @@ public class DisplayFoldersLayer2 extends AppCompatActivity {
         });
 
     }
-    private void copy(File sourceLocation, File targetLocation){
+    private void copy(File sourceLocation, File targetLocation,Boolean move1){
         try {
 
-            // 1 = move the file, 2 = copy the file
-            int actionChoice = 2;
+
 
             // moving the file to another directory
-            if(actionChoice==1){
+            if(move1==true){
 
                 if(sourceLocation.renameTo(targetLocation)){
-                   // Log.v(TAG, "Move file successful.");
+                    Toast.makeText(this, "File moves successfully", Toast.LENGTH_SHORT).show();
                 }else{
-                    //Log.v(TAG, "Move file failed.");
+                    Toast.makeText(this, "File moves failed", Toast.LENGTH_SHORT).show();
                 }
 
             }

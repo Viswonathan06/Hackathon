@@ -44,11 +44,12 @@ import java.util.*;
 
 public class MainActivity extends AppCompatActivity {
     public static String copyPath;
+    public static Boolean move1;
     public static Boolean copied1=false;
     Boolean copiedLevel2=false;
     String copyPathLevel2;
     ArrayList<String> fileList;
-    Button delete,paste,rename,copy;
+    Button delete,paste,rename,copy,move;
     LinearLayout functiondrawer;
     File[] files;
     ArrayList<String> selectedPositions=new ArrayList<>();
@@ -74,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
             copy.setVisibility(View.GONE);
         }
         Toast.makeText(this, "Resuming with copy value "+copiedLevel2, Toast.LENGTH_SHORT).show();
+        createNewViewOrRefresh();
     }
     @Override
     public void finish(){
@@ -96,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
         paste=findViewById(R.id.paste);
         paste.setVisibility(View.GONE);
         copy=findViewById(R.id.copy);
+        move=findViewById(R.id.move);
         /*if(copied){
             paste.setVisibility(View.VISIBLE);
             copy.setVisibility(View.GONE);
@@ -146,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
                 renameDialog.show();
             }
         });
+
         copy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -156,6 +160,19 @@ public class MainActivity extends AppCompatActivity {
                     copied1=true;
 
 
+                }
+            }
+        });
+        move.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (selectedPositions.isEmpty()){
+                    Toast.makeText(MainActivity.this, "You have not selected a file!", Toast.LENGTH_SHORT).show();
+                }else {
+                    copyPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + selectedPositions.get(0);
+                    copied1 = true;
+                    move1=true;
+                    copy.setVisibility(View.GONE);
                 }
             }
         });
