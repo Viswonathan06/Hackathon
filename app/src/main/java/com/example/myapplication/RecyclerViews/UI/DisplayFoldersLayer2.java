@@ -1,6 +1,8 @@
 package com.example.myapplication.RecyclerViews.UI;
 
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -18,7 +20,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Environment;
 import android.os.FileUtils;
+import android.preference.PreferenceManager;
 import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -152,8 +156,13 @@ public class DisplayFoldersLayer2 extends AppCompatActivity {
                 if (selectedPositions.isEmpty()){
                     Toast.makeText(DisplayFoldersLayer2.this, "You have not selected a file!", Toast.LENGTH_SHORT).show();
                 }else {
-                    copyPathLevel2 = Environment.getExternalStorageDirectory().getAbsolutePath() + selectedPositions.get(0);
+                    copyPathLevel2 = Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+folderName+"/" + selectedPositions.get(0);
                     copiedLevel2=true;
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(DisplayFoldersLayer2.this);
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putBoolean("copiedLevel2", copiedLevel2);
+                    editor.putString("copyPathLevel2",copyPathLevel2);
+                    editor.commit();
 
                 }
             }
@@ -162,12 +171,17 @@ public class DisplayFoldersLayer2 extends AppCompatActivity {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View v) {
-                Toast.makeText(DisplayFoldersLayer2.this, MainActivity.copyPath, Toast.LENGTH_SHORT).show();
-                String src= new String(MainActivity.copyPath);
-                String dstPath= new String(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + folderName+src.substring(src.lastIndexOf('/')) );
-                Toast.makeText(DisplayFoldersLayer2.this, "destination= "+dstPath, Toast.LENGTH_SHORT).show();
+                if(MainActivity.copied1) {
+                    Toast.makeText(DisplayFoldersLayer2.this, MainActivity.copyPath, Toast.LENGTH_SHORT).show();
+                    File src = new File(MainActivity.copyPath);
 
-                copy(new File(MainActivity.copyPath), new File(dstPath));
+                    File dest = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + folderName + "/" + MainActivity.copyPath.substring(MainActivity.copyPath.lastIndexOf('/')+1));
+                    Toast.makeText(DisplayFoldersLayer2.this, "destination= " + Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + folderName + "/" + MainActivity.copyPath.substring(MainActivity.copyPath.lastIndexOf('/') + 1), Toast.LENGTH_SHORT).show();
+
+                    copy(src, dest);
+                    MainActivity.copied1=false;
+                    MainActivity.copyPath="";
+                }
                 RefreshViewOrNewView();
             }
 
@@ -205,31 +219,62 @@ public class DisplayFoldersLayer2 extends AppCompatActivity {
         });
 
     }
-    @RequiresApi(api = Build.VERSION_CODES.Q)
-    private void copy(File src, File dst){
+    private void copy(File sourceLocation, File targetLocation){
         try {
-            InputStream in=new FileInputStream(src);
-            OutputStream out=new FileOutputStream(dst);
-           // FileUtils.copy(in,out);
-            Toast.makeText(this, "Copying", Toast.LENGTH_SHORT).show();
-            byte[] buf=new byte[1024];
-            int len;
-            while((len=in.read(buf))>0){
-                out.write(buf,0,len);
-            }
-            out.close();
-            in.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "NOT copying FNF", Toast.LENGTH_SHORT).show();
 
+            // 1 = move the file, 2 = copy the file
+            int actionChoice = 2;
+
+            // moving the file to another directory
+            if(actionChoice==1){
+
+                if(sourceLocation.renameTo(targetLocation)){
+                   // Log.v(TAG, "Move file successful.");
+                }else{
+                    //Log.v(TAG, "Move file failed.");
+                }
+
+            }
+
+            // we will copy the file
+            else{
+
+                // make sure the target file exists
+
+                if(sourceLocation.exists()){
+
+                    InputStream in = new FileInputStream(sourceLocation);
+                    OutputStream out = new FileOutputStream(targetLocation);
+
+                    // Copy the bits from instream to outstream
+                    byte[] buf = new byte[1024];
+                    int len;
+
+                    while ((len = in.read(buf)) > 0) {
+                        out.write(buf, 0, len);
+                    }
+
+                    in.close();
+                    out.close();
+
+                    Toast.makeText(this, "Copy File Successful", Toast.LENGTH_SHORT).show();
+                }else {
+                    Toast.makeText(this, "Source File Missing", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+        } catch (NullPointerException | FileNotFoundException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "NFE", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(this, "NOT copying", Toast.LENGTH_SHORT).show();
-
         }
 
     }
+
+
+
 
     private void RefreshViewOrNewView() {
         File root = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + folderName);
